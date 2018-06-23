@@ -2,6 +2,7 @@ use std::env::temp_dir;
 use std::fs;
 use std::io::Result;
 use std::path::PathBuf;
+use uuid::Uuid;
 
 use tempdir::TempDir;
 
@@ -10,11 +11,11 @@ use tempdir::TempDir;
 ///
 /// Slots for new files are allocated using `get_new_file()`. This struct will
 /// create new subdirectories as needed to ensure that no subdirectory contains
-/// more than 10,000 files/subdirectories.
+/// more than 1,000 files/subdirectories.
 pub struct FileTree {
     tmp_dir: Option<TempDir>,
     persistent_dir: Option<PathBuf>,
-    counter: u64
+    counter: u64,
 }
 
 impl FileTree {
@@ -28,13 +29,17 @@ impl FileTree {
     /// `tempdir::TempDir`, and any related errors will be returned here
     pub fn new_in(path: PathBuf, persistent: bool) -> Result<FileTree> {
         if persistent {
-            Ok(FileTree { tmp_dir: None,
-                          persistent_dir: Some(path),
-                          counter: 0 })
+            Ok(FileTree {
+                tmp_dir: None,
+                persistent_dir: Some(path),
+                counter: 0,
+            })
         } else {
-            Ok(FileTree { tmp_dir: Some(TempDir::new_in(path, "file_tree")?),
-                          persistent_dir: None,
-                          counter: 0 })
+            Ok(FileTree {
+                tmp_dir: Some(TempDir::new_in(path, "file_tree")?),
+                persistent_dir: None,
+                counter: 0,
+            })
         }
     }
 
@@ -48,13 +53,29 @@ impl FileTree {
     /// `tempdir::TempDir`, and any related errors will be returned here
     pub fn new(persistent: bool) -> Result<FileTree> {
         if persistent {
-            Ok(FileTree { tmp_dir: None,
-                          persistent_dir: Some(temp_dir()),
-                          counter: 0 })
+            let uuid = Uuid::new_v4().hyphenated().to_string();
+
+            Ok(FileTree {
+                tmp_dir: None,
+                persistent_dir: Some(temp_dir().join(uuid)),
+                counter: 0,
+            })
         } else {
-            Ok(FileTree { tmp_dir: Some(TempDir::new("file_tree")?),
-                          persistent_dir: None,
-                          counter: 0 })
+            Ok(FileTree {
+                tmp_dir: Some(TempDir::new("file_tree")?),
+                persistent_dir: None,
+                counter: 0,
+            })
+        }
+    }
+
+    /// Creates a FileTree from an existing directory structure. `path` should be equivalent to
+    /// the result of calling `get_root()` on the previous (persistent) `FileTree`.
+    pub fn from_existing(path: PathBuf) -> FileTree {
+        FileTree {
+            tmp_dir: None,
+            persistent_dir: Some(path),
+            counter: 0,
         }
     }
 
@@ -67,6 +88,14 @@ impl FileTree {
     /// If a new subdirectory is required, `fs::create_dir_all` will be called.
     /// Any errors from that call will be returned here
     pub fn get_new_file(&mut self) -> Result<PathBuf> {
+        let mut new_file = self.get_new_file_uniq()?;
+        while new_file.exists() {
+            new_file = self.get_new_file_uniq()?;
+        }
+        Ok(new_file)
+    }
+
+    fn get_new_file_uniq(&mut self) -> Result<PathBuf> {
         let uid = format!("{:012}", self.counter);
         self.counter += 1;
         let mut buff = String::new();
@@ -82,18 +111,18 @@ impl FileTree {
             parts.push(buff);
         }
         let path_str = format!("{0}/{1}/{2}", parts[0], parts[1], parts[2]);
-        let path = self.get_path().join(path_str);
+        let path = self.get_root().join(path_str);
         match fs::create_dir_all(&path) {
             Ok(_) => Ok(path.join(uid)),
-            Err(e) => Err(e)
+            Err(e) => Err(e),
         }
     }
 
     /// Return the root path for the file tree
-    pub fn get_path(&self) -> PathBuf {
+    pub fn get_root(&self) -> PathBuf {
         match self.tmp_dir {
             Some(ref p) => p.path().to_path_buf(),
-            None => self.persistent_dir.as_ref().unwrap().to_path_buf()
+            None => self.persistent_dir.as_ref().unwrap().to_path_buf(),
         }
     }
 }

@@ -4,6 +4,7 @@
 //! Optionally deletes the created directory and files when dropped.
 
 extern crate tempdir;
+extern crate uuid;
 
 mod file_tree;
 
