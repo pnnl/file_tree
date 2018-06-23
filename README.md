@@ -28,8 +28,9 @@ Examples
 Use `FileTree::new(false)` to create a temporary structure that will be deleted
 when the created struct is dropped.
 
-Calls to `get_new_file()` will generate a new `PathBuf`, but will not actually
-create the file. 
+Calls to `get_new_file()` will generate a new `PathBuf`. The parent directory will exist, but `get_new_file()` will not actually create the file. 
+
+Use `get_root()` to retrieve the base path for the created directory structure.
 
 ```rust
 extern crate file_tree;

@@ -69,8 +69,9 @@ impl FileTree {
         }
     }
 
-    /// Creates a FileTree from an existing directory structure. `path` should be equivalent to
-    /// the result of calling `get_root()` on the previous (persistent) `FileTree`.
+    /// Creates a FileTree from an existing directory structure. `path` should
+    /// be equivalent to the result of calling `get_root()` on the previous
+    /// (persistent) `FileTree`.
     pub fn from_existing(path: PathBuf) -> FileTree {
         FileTree {
             tmp_dir: None,
@@ -81,7 +82,16 @@ impl FileTree {
 
     /// Returns a PathBuf pointing to an available slot in the file tree. The
     /// file pointed to by the returned `PathBuf` will not be created by
-    /// this method call.     
+    /// this method call, but a new directory will be created if necessary.
+    ///
+    /// This method will ensure that the file pointed to by the returned
+    /// `PathBuf` does not exist. If this struct was created using an existing
+    /// directory structure existing files will be skipped over when generating
+    /// new file names to return.
+    ///
+    /// File paths are generated such that each new leaf directory (starting
+    /// with `000/000/000/`) will be filled entirely before creating a new
+    /// directory (next would be `000/000/001/`).
     ///
     /// # Errors
     ///
@@ -98,12 +108,12 @@ impl FileTree {
     fn get_new_file_uniq(&mut self) -> Result<PathBuf> {
         let uid = format!("{:012}", self.counter);
         self.counter += 1;
-        let mut buff = String::new();
-        let mut parts = Vec::new();
+        let mut buff = String::with_capacity(3);
+        let mut parts = Vec::with_capacity(4);
         for c in uid.chars() {
             if buff.chars().count() >= 3 {
                 parts.push(buff);
-                buff = String::new();
+                buff = String::with_capacity(3);
             }
             buff.push(c);
         }
