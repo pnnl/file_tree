@@ -1,0 +1,1 @@
+{"rustc":12875401249780638716,"features":"[]","target":1727930973419855085,"profile":1507420166159675468,"path":10872709659218687626,"deps":[["tempdir v0.3.7","tempdir",12527460219220713210]],"local":[{"MtimeBased":[[1529713145,0],".fingerprint/file_tree-f8e216be1c5f6ef1/dep-test-lib-file_tree-f8e216be1c5f6ef1"]}],"rustflags":[],"edition":"Edition2015"}

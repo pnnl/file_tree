@@ -1,0 +1,16 @@
+[package]
+name = "file_tree"
+version = "0.1.0"
+authors = ["Phillips, Aaron R <Aaron.Phillips@pnnl.gov>"]
+license = "MIT"
+repository = "https://github.com/pnnl/file_tree"
+keywords = ["storage", "file", "directory"]
+categories = ["filesystem"]
+readme = "README.md"
+description = """
+Creates a directory structure suitable for storing large numbers of files, and 
+optionally deletes the created directory and files when dropped.
+"""
+
+[dependencies]
+tempdir = "^0.3.7"

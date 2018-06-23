@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FileTree","Creates a directory structure suitable for storing large numbers of files. Optionally deletes the created directory and files when dropped."]]});
