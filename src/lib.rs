@@ -8,4 +8,4 @@ extern crate uuid;
 
 mod file_tree;
 
-pub use file_tree::FileTree;
+pub use file_tree::{FileTree, KeyedFileTree};
