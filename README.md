@@ -13,13 +13,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-file_tree = "^0.1.0"
-```
-
-and this to your crate root:
-
-```rust
-extern crate file_tree;
+file_tree = "0.1.1"
 ```
 
 Examples

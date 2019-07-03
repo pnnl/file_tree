@@ -1,5 +1,3 @@
-extern crate file_tree;
-
 use std::env::temp_dir;
 use std::fs::File;
 

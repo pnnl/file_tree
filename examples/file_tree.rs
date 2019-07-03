@@ -1,5 +1,3 @@
-extern crate file_tree;
-
 use file_tree::FileTree;
 
 fn main() {
